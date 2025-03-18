@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CDB4B0722D873FBE00AE192A /* FAC_Z80 in Frameworks */ = {isa = PBXBuildFile; productRef = CDB4B0712D873FBE00AE192A /* FAC_Z80 */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		CDB4B0442D873E6B00AE192A /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CDB4B0722D873FBE00AE192A /* FAC_Z80 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = ChipTesterZ80;
 			packageProductDependencies = (
+				CDB4B0712D873FBE00AE192A /* FAC_Z80 */,
 			);
 			productName = ChipTesterZ80;
 			productReference = CDB4B0322D873E6A00AE192A /* ChipTesterZ80.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = CDB4B0292D873E6A00AE192A;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CDB4B0702D873FBE00AE192A /* XCLocalSwiftPackageReference "../FAC_Z80" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CDB4B0332D873E6A00AE192A /* Products */;
 			projectDirPath = "";
@@ -591,6 +600,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		CDB4B0702D873FBE00AE192A /* XCLocalSwiftPackageReference "../FAC_Z80" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../FAC_Z80;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CDB4B0712D873FBE00AE192A /* FAC_Z80 */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = FAC_Z80;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CDB4B02A2D873E6A00AE192A /* Project object */;
 }
