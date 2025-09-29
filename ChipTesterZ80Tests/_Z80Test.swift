@@ -22,10 +22,10 @@ struct _Z80Test {
 {"name":"FD 76 0002","initial":{"pc":32083,"sp":39710,"a":160,"b":40,"c":226,"d":95,"e":61,"f":20,"h":56,"l":190,"i":72,"r":107,"ei":1,"wz":42514,"ix":52655,"iy":12358,"af_":60903,"bc_":2751,"de_":49568,"hl_":49795,"im":2,"p":0,"q":0,"iff1":0,"iff2":1,"ram":[[32083,253],[32084,118]]},"final":{"a":160,"b":40,"c":226,"d":95,"e":61,"f":20,"h":56,"l":190,"i":72,"r":109,"af_":60903,"bc_":2751,"de_":49568,"hl_":49795,"ix":52655,"iy":12358,"pc":32085,"sp":39710,"wz":42514,"iff1":0,"iff2":1,"im":2,"ei":0,"p":0,"q":0,"ram":[[32083,253],[32084,118]]},"cycles":[[32083,null,"----"],[32083,null,"r-m-"],[18539,253,"----"],[18539,null,"----"],[32084,null,"----"],[32084,null,"r-m-"],[18540,118,"----"],[18540,null,"----"]]}
 
 """
-        
         let test = try JSONDecoder().decode(TestModel.self, from: Data(testJSON.utf8))
         test.log()
-        let cpu = CPU_Z80()
+        let ram = ZX48KRam()
+        let cpu = CPU_Z80(memory: ram)
         cpu.PC = test.initial.pc
         cpu.SP = test.initial.sp
         cpu.A = test.initial.a
@@ -48,36 +48,37 @@ struct _Z80Test {
         cpu.HL2 = test.initial.hl_
         cpu.iff1 = test.initial.iff1
         cpu.iff2 = test.initial.iff2
-//        cpu.L = test.initial.l
-//        cpu.L = test.initial.l
-//        cpu.L = test.initial.l
-//        cpu.L = test.initial.l
+        //        cpu.L = test.initial.l
+        //        cpu.L = test.initial.l
+        //        cpu.L = test.initial.l
+        //        cpu.L = test.initial.l
         
         
-//        let ei: UInt8
-//        let wz: UInt16
-//        let im: UInt8
-//        let p: UInt8
-//        let q: UInt8
+        //        let ei: UInt8
+        //        let wz: UInt16
+        //        let im: UInt8
+        //        let p: UInt8
+        //        let q: UInt8
         
         
         
         
-        test.initial.ram.forEach { item in
+        for item in test.initial.ram {
             let ramAddress = item[0]
             let ramValue = item[1]
-            cpu.ram[0][ramAddress] = UInt8(ramValue)
+            await ram.write(to: UInt16(ramAddress), value: UInt8(ramValue))
+            //ram[ramAddress] = UInt8(ramValue)
         }
         
         if let ports = test.ports {
-            ports.forEach { item in
+            for item in ports {
                 let port = item[0]
                 let value = item[1]
-                cpu.hardwarePorts.writeSinglePort(port: port.fetchUInt16(), value: value.fetchUInt8())
+               await cpu.hardwarePorts.writeSinglePort(port: port.fetchUInt16(), value: value.fetchUInt8())
             }
         }
         
-        cpu.fetchAndExecute()
+        await cpu.fetchAndExecute()
         #expect(cpu.A == UInt8(test.final.a))
         mismatch(test.name, "A", cpu.A, test.final.a)
         #expect(cpu.B == UInt8(test.final.b))
@@ -126,13 +127,12 @@ struct _Z80Test {
         #expect(cpu.R == UInt8(test.final.r))
         mismatch(test.name, "R", cpu.R, test.final.r)
         
-        test.final.ram.forEach { item in
+        for item in test.final.ram {
             let ramAddress = item[0]
             let ramValue = item[1]
-            #expect(cpu.ram[0][ramAddress] == UInt8(ramValue))
-            mismatchRAM(UInt16(ramAddress), cpu.ram[0][ramAddress], UInt8(ramValue))
+            await #expect(ram.read(from: UInt16(ramAddress)) == UInt8(ramValue))
+            await mismatchRAM(UInt16(ramAddress), ram.read(from: UInt16(ramAddress)), UInt8(ramValue))
         }
-        
     }
     
     func mismatch(_ test: String, _ name: String, _ result: UInt8, _ expected: UInt8){
@@ -159,12 +159,20 @@ struct _Z80Test {
         }
     }
     
+    func mismatch(_ test: String, _ name: String, _ result: Int, _ expected: Int){
+        if result != expected {
+            print ("\(test) - \(name) Mismatch : \(result.hex()) (\(result)) != \(expected.hex()) (\(expected))")
+        }
+    }
+    
     
     @Test func runTest() async throws {
         let tests: [TestModel] = await loadJson(testID.lowercased())
         print("Found \(tests.count) tests for \(testID).json")
-        let cpu = CPU_Z80()
-        tests.forEach{ test in
+        let ram = ZX48KRam()
+        let cpu = CPU_Z80(memory: ram)
+        for test in tests{
+            cpu.tStates = 0
             cpu.PC = test.initial.pc
             cpu.SP = test.initial.sp
             cpu.A = test.initial.a
@@ -178,7 +186,6 @@ struct _Z80Test {
             
             cpu.I = test.initial.i
             cpu.R = test.initial.r
-            //cpu.L = test.initial.l
             cpu.IX = test.initial.ix
             cpu.IY = test.initial.iy
             cpu.AF2 = test.initial.af_
@@ -189,11 +196,6 @@ struct _Z80Test {
             cpu.iff2 = test.initial.iff2
             
             cpu.isInHaltState = false
-    //        cpu.L = test.initial.l
-    //        cpu.L = test.initial.l
-    //        cpu.L = test.initial.l
-    //        cpu.L = test.initial.l
-            
             
     //        let ei: UInt8
     //        let wz: UInt16
@@ -204,21 +206,21 @@ struct _Z80Test {
             
             
             
-            test.initial.ram.forEach { item in
-                let ramAddress = item[0]
-                let ramValue = item[1]
-                cpu.ram[0][ramAddress] = UInt8(ramValue)
+            for item in test.initial.ram {
+                let ramAddress = UInt16(item[0])
+                let ramValue = UInt8(item[1])
+               await ram.write(to: ramAddress, value: ramValue)
             }
             
             if let ports = test.ports {
-                ports.forEach { item in
+                for item in ports {
                     let port = item[0]
                     let value = item[1]
-                    cpu.hardwarePorts.writeSinglePort(port: port.fetchUInt16(), value: value.fetchUInt8())
+                  await cpu.hardwarePorts.writeSinglePort(port: port.fetchUInt16(), value: value.fetchUInt8())
                 }
             }
             
-            cpu.fetchAndExecute()
+           await cpu.fetchAndExecute()
             #expect(cpu.A == UInt8(test.final.a))
             mismatch(test.name, "A", cpu.A, test.final.a)
             #expect(cpu.B == UInt8(test.final.b))
@@ -272,12 +274,15 @@ struct _Z80Test {
             #expect(cpu.R == UInt8(test.final.r))
             mismatch(test.name, "R", cpu.R, test.final.r)
             
-            test.final.ram.forEach { item in
-                let ramAddress = item[0]
-                let ramValue = item[1]
-                #expect(cpu.ram[0][ramAddress] == UInt8(ramValue))
-                mismatchRAM(UInt16(ramAddress), cpu.ram[0][ramAddress], UInt8(ramValue))
+            for item in test.final.ram {
+                let ramAddress = UInt16(item[0])
+                let ramValue = UInt8(item[1])
+                #expect(await ram.read(from: ramAddress) == ramValue)
+                await mismatchRAM(ramAddress, ram.read(from: ramAddress), ramValue)
             }
+            
+            #expect(cpu.tStates == test.cycles.count)
+            mismatch(test.name, "Cycles", cpu.tStates, test.cycles.count)
         }
         
     }
@@ -309,3 +314,4 @@ struct _Z80Test {
 class BaseTest {
     
 }
+

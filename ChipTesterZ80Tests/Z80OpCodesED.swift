@@ -74,6 +74,11 @@ struct Z80OpCodesED{
     testID = "ED 4D"
     try await _Z80Test().runTest()
     }
+    
+    @Test func test_0x4E() async throws {
+    testID = "ED 4E"
+    try await _Z80Test().runTest()
+    }
 
     @Test func test_0x4F() async throws {
     testID = "ED 4F"
@@ -227,6 +232,16 @@ struct Z80OpCodesED{
 
     @Test func test_0x7B() async throws {
     testID = "ED 7B"
+    try await _Z80Test().runTest()
+    }
+    
+    @Test func test_0x7E() async throws {
+    testID = "ED 7E"
+    try await _Z80Test().runTest()
+    }
+    
+    @Test func test_0x7F() async throws {
+    testID = "ED 7F"
     try await _Z80Test().runTest()
     }
 
