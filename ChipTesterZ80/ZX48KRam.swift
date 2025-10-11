@@ -7,6 +7,10 @@
 import FAC_Z80
 
 actor ZX48KRam: MemoryDelegate {
+    func fetchBatch(from: Int, size: Int) async -> [UInt8] {
+        return []
+    }
+    
     var ram: [UInt8] = Array(repeating: 0x00, count: 0x010000)
     
     func write(to: UInt16, value: UInt8) {
