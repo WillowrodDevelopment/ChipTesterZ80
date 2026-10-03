@@ -11,11 +11,11 @@ import Foundation
 import FAC_Common
 
 var testID = "FD 76"
-let checkFlags3And5 = false
+let checkFlags3And5 = true
 
 struct _Z80Test {
     
-    let ignoreHP = ["ED B2", "ED B3", "ED BA", "ED BB"]
+    let ignoreHP: [String] = []//"ED B2", "ED B3", "ED BA", "ED BB"]
     
     @Test func runSpecificTest() async throws {
         let testJSON = """
@@ -48,6 +48,8 @@ struct _Z80Test {
         cpu.HL2 = test.initial.hl_
         cpu.iff1 = test.initial.iff1
         cpu.iff2 = test.initial.iff2
+        cpu.q = test.initial.q
+        cpu.memptr = test.initial.wz
         //        cpu.L = test.initial.l
         //        cpu.L = test.initial.l
         //        cpu.L = test.initial.l
@@ -194,6 +196,8 @@ struct _Z80Test {
             cpu.HL2 = test.initial.hl_
             cpu.iff1 = test.initial.iff1
             cpu.iff2 = test.initial.iff2
+            cpu.q = test.initial.q
+            cpu.memptr = test.initial.wz
             
             cpu.isInHaltState = false
             

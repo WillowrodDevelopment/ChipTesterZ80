@@ -6,8 +6,8 @@
 //
 import FAC_Z80
 
-actor ZX48KRam: MemoryDelegate {
-    func fetchBatch(from: Int, size: Int) async -> [UInt8] {
+final class ZX48KRam: MemoryDelegate {
+    func fetchBatch(from: Int, size: Int) -> [UInt8] {
         return []
     }
     
@@ -46,11 +46,11 @@ actor ZX48KRam: MemoryDelegate {
         }
     }
     
-    func screenRam() async -> [UInt8] {
+    func screenRam() -> [UInt8] {
         return Array(ram[0x4000...0x57FF])
     }
     
-    func attributeRam() async -> [UInt8] {
+    func attributeRam() -> [UInt8] {
         return Array(ram[0x5800...0x5AFF])
     }
     
